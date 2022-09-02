@@ -1,0 +1,8 @@
+version: '3'
+services:
+  map-app:
+    container_name: map-app
+    build: ./deployment
+    volumes:
+      - ./map:/home/map
+    tty: true
