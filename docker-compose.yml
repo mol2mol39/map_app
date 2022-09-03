@@ -2,7 +2,11 @@ version: '3'
 services:
   map-app:
     container_name: map-app
-    build: ./deployment
+    build:
+      context: .
+      dockerfile: ./deployment/Dockerfile
+    ports:
+      - 8500:8000
     volumes:
       - ./map:/home/map
     tty: true
