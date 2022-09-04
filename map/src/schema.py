@@ -10,8 +10,9 @@ book_data = [{
     "author": "夏目漱石"
 }, {
     "title": "test",
-    "author": "test"  
+    "author": "test"
 }]
+
 
 def get_author_for_book(root) -> "Author":
     name = ''
@@ -20,23 +21,29 @@ def get_author_for_book(root) -> "Author":
             name = book['author']
     return Author(name=name)
 
+
 @strawberry.type
 class Book:
     title: str
     author: "Author" = strawberry.field(resolver=get_author_for_book)
 
+
 def get_books_for_author(root):
-    books = [Book(title=book['title']) for book in book_data if root.name == book['author']]
+    books = [Book(title=book['title']) for book in book_data
+             if root.name == book['author']]
     return books
+
 
 @strawberry.type
 class Author:
     name: str
     books: List['Book'] = strawberry.field(resolver=get_books_for_author)
 
+
 def get_authors() -> List[Author]:
     authors = [Author(name=book['author']) for book in book_data]
     return authors
+
 
 def get_books(root):
     books = [Book(title=book['title']) for book in book_data]

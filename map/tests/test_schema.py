@@ -2,6 +2,7 @@ import pytest
 
 import src.schema as schema
 
+
 def test_query_authors():
     query = """
         query {
@@ -16,6 +17,7 @@ def test_query_authors():
         {"name": "夏目漱石"},
         {"name": "test"}
     ]
+
 
 def test_query_books():
     query = """
