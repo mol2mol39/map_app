@@ -10,3 +10,30 @@ services:
     volumes:
       - ./map:/home/map
     tty: true
+    depends_on:
+      - db
+    networks:
+      - map-network
+  
+  db:
+    container_name: map-db
+    image: postgres:14.5-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdb:/var/lib/postgresql/data
+    networks:
+      - map-network
+
+volumes:
+  pgdb:
+    external: true
+
+networks:
+  map-network:
+    external: true
