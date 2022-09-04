@@ -39,7 +39,6 @@ def get_authors() -> List[Author]:
     return authors
 
 def get_books(root):
-    print("get_books call")
     books = [Book(title=book['title']) for book in book_data]
     return books
 
