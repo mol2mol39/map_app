@@ -1,27 +1,70 @@
-import strawberry
 from typing import List
+import strawberry
 
 from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
 
-def get_books():
-    return [
-        Book(
-            title="吾輩は猫である",
-            author="夏目漱石",
-        ),
-    ]
+
+book_data = [{
+    "title": "我輩は猫である",
+    "author": "夏目漱石"
+}, {
+    "title": "test",
+    "author": "test"  
+}]
+
+def get_author_for_book(root) -> "Author":
+    name = ''
+    for book in book_data:
+        if root.title == book['title']:
+            name = book['author']
+    return Author(name=name)
 
 @strawberry.type
 class Book:
     title: str
-    author: str
+    author: "Author" = strawberry.field(resolver=get_author_for_book)
+
+def get_books_for_author(root):
+    books = [Book(title=book['title']) for book in book_data if root.name == book['author']]
+    return books
+
+@strawberry.type
+class Author:
+    name: str
+    books: List['Book'] = strawberry.field(resolver=get_books_for_author)
+
+def get_authors() -> List[Author]:
+    authors = [Author(name=book['author']) for book in book_data]
+    return authors
+
+def get_books(root):
+    print("get_books call")
+    books = [Book(title=book['title']) for book in book_data]
+    return books
+
 
 @strawberry.type
 class Query:
+    authors: List[Author] = strawberry.field(resolver=get_authors)
     books: List[Book] = strawberry.field(resolver=get_books)
 
-schema = strawberry.Schema(query=Query)
+
+@strawberry.input
+class AddBookInput:
+    title: str = strawberry.field(description="The title of the book")
+    author: str = strawberry.field(description="The name if the auther")
+
+
+@strawberry.type
+class Mutation:
+    @strawberry.mutation
+    def add_book(self, book: AddBookInput) -> Book:
+        book_data.append({"title": book.title, "author": book.author})
+        return Book(title=book.title)
+
+
+schema = strawberry.Schema(query=Query, mutation=Mutation)
 
 graphql_app = GraphQLRouter(schema)
 
