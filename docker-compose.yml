@@ -4,7 +4,7 @@ services:
     container_name: map-app
     build:
       context: .
-      dockerfile: ./deployment/Dockerfile
+      dockerfile: ./deployment/backend/Dockerfile
     ports:
       - 8500:8000
     volumes:
@@ -27,6 +27,21 @@ services:
       - 5432:5432
     volumes:
       - pgdb:/var/lib/postgresql/data
+    networks:
+      - map-network
+
+  map-front:
+    container_name: map-front
+    build:
+      context: .
+      dockerfile: ./deployment/frontend/Dockerfile
+    volumes:
+      - ./frontend:/usr/src/map
+    environment:
+     - WATCHPACK_POLLING=true
+    command: sh -c "cd map && npm run dev"
+    ports:
+      - 3000:3000
     networks:
       - map-network
 
