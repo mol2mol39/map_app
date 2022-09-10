@@ -1,5 +1,5 @@
 import type { GetServerSideProps, NextPage } from 'next'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import 'semantic-ui-css/semantic.min.css'
 import { Loader } from 'semantic-ui-react'
 
@@ -20,6 +20,28 @@ const fetchCatImg = async (): Promise<SearchCatImage> => {
   // console.log(result[0])
   return result[0];
 }
+
+// export async function getStaticProps() {
+//   const { data } = await client.query({
+//     query: gql`
+//       query Countries {
+//         countries {
+//           code
+//           name
+//         }
+//       }
+//     `,
+//   });
+//   return {
+//     props: {
+//       countries: data.countries.slice(0, 4),
+//     }
+//   }
+// }
+
+// export interface CountriesData {
+//   countries: Country[];
+// }
 
 const Home: NextPage<IndexPageProps> = ({ initialCatImageUrl }) => {
   const [catImgUrl, setCatImgUrl] = useState(initialCatImageUrl);
