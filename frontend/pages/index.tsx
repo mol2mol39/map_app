@@ -4,28 +4,24 @@ import { gql, useQuery } from "@apollo/client";
 import client from '../graphql/apollo-client';
 import styles from "../styles/Home.module.css";
 
-interface Author {
-  name: string;
+interface Country {
+  id: string;
+  jpName: string;
+  enName: string;
 }
 
-interface Book {
-  title: string;
-  author: Author;
+interface CountriesProps {
+  countries: Country[];
 }
 
-interface BooksProps {
-  books: Book[];
-}
-
-const fetchCountries = async (): Promise<BooksProps> => {
+const fetchCountries = async (): Promise<CountriesProps> => {
   const { data } = await client.query({
     query: gql`
-      query Books {
-        books {
-          title
-          author {
-            name
-          }
+      query Countries {
+        countries {
+          id
+          jpName
+          enName
         }
       }
     `,
@@ -61,14 +57,14 @@ const fetchCountries = async (): Promise<BooksProps> => {
 //   }
 // }
 
-const Home: NextPage<BooksProps> = ({ books }) => {
-  console.log(books);
+const Home: NextPage<CountriesProps> = ({ countries }) => {
+  console.log(countries);
   return (
       <div className={styles.grid}>
         <ul>
-          {books.map((book: Book) => (
-            <div key={book.title} className={styles.card}>
-              <li>{book.title} - {book.author.name}</li>
+          {countries.map((country: Country) => (
+            <div key={country.id} className={styles.card}>
+              <li>{country.id} - {country.jpName} - {country.enName}</li>
             </div>
           ))}
         </ul>
@@ -77,12 +73,12 @@ const Home: NextPage<BooksProps> = ({ books }) => {
 }
 
 export const getServerSideProps: GetServerSideProps<
-  BooksProps
+  CountriesProps
 > = async () => {
-  const data: BooksProps = await fetchCountries();
+  const data: CountriesProps = await fetchCountries();
   return {
     props: {
-      books: data.books
+      countries: data.countries
     }
   }
 };
