@@ -1,79 +1,45 @@
 from typing import List
 import strawberry
-
-from fastapi import FastAPI
+from strawberry_sqlalchemy_mapper import StrawberrySQLAlchemyMapper, StrawberrySQLAlchemyLoader
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from strawberry.fastapi import GraphQLRouter
 
+from src.models import country
+from settings import session
 
-book_data = [{
-    "title": "我輩は猫である",
-    "author": "夏目漱石"
-}, {
-    "title": "test",
-    "author": "test"
-}]
+strawberry_sqlalchemy_mapper = StrawberrySQLAlchemyMapper()
 
+@strawberry_sqlalchemy_mapper.type(country.Country)
+class Country:
+    pass
 
-def get_author_for_book(root) -> "Author":
-    name = ''
-    for book in book_data:
-        if root.title == book['title']:
-            name = book['author']
-    return Author(name=name)
-
-
-@strawberry.type
-class Book:
-    title: str
-    author: "Author" = strawberry.field(resolver=get_author_for_book)
-
-
-def get_books_for_author(root):
-    books = [Book(title=book['title']) for book in book_data
-             if root.name == book['author']]
-    return books
-
-
-@strawberry.type
-class Author:
-    name: str
-    books: List['Book'] = strawberry.field(resolver=get_books_for_author)
-
-
-def get_authors() -> List[Author]:
-    authors = [Author(name=book['author']) for book in book_data]
-    return authors
-
-
-def get_books(root):
-    books = [Book(title=book['title']) for book in book_data]
-    return books
-
+def get_countries() -> List[Country]:
+    s = session()
+    countries = s.query(country.Country).all()
+    return countries
 
 @strawberry.type
 class Query:
-    authors: List[Author] = strawberry.field(resolver=get_authors)
-    books: List[Book] = strawberry.field(resolver=get_books)
+    countries: List[Country] = strawberry.field(resolver=get_countries)
+
+# def custom_context_dependency():
+#     return StrawberrySQLAlchemyLoader(bind=session())
 
 
-@strawberry.input
-class AddBookInput:
-    title: str = strawberry.field(description="The title of the book")
-    author: str = strawberry.field(description="The name if the auther")
+# async def get_context(
+#     custom_value=Depends(custom_context_dependency),
+# ):
+#     return {
+#         "custom_value": custom_value,
+#     }
 
+strawberry_sqlalchemy_mapper.finalize()
+additional_types = list(strawberry_sqlalchemy_mapper.mapped_types.values())
 
-@strawberry.type
-class Mutation:
-    @strawberry.mutation
-    def add_book(self, book: AddBookInput) -> Book:
-        book_data.append({"title": book.title, "author": book.author})
-        return Book(title=book.title)
+schema = strawberry.Schema(query=Query, types=additional_types)
 
-
-schema = strawberry.Schema(query=Query, mutation=Mutation)
-
-graphql_app = GraphQLRouter(schema)
+graphql_app = GraphQLRouter(schema)#, context_getter=get_context,)
 
 app = FastAPI()
 

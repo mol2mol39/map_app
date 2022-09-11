@@ -17,8 +17,7 @@ class Country(Base):
     administrative_division = Column(String)
 
     def __repr__(self):
-        return "<User(id={}, jp_name={}, en_name={}, numeric_code={}," + \
-        "alpha2={}, area={}, administrative_division={})>".format(
+        return "<User(id={}, jp_name={}, en_name={}, numeric_code={}, alpha2={}, area={}, administrative_division={})>".format(
             self.id,
             self.jp_name,
             self.en_name,
