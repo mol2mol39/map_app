@@ -9,6 +9,8 @@ services:
       - 8500:8000
     volumes:
       - ./map:/home/map
+    environment:
+      - PYTHONPATH=/home/map
     tty: true
     depends_on:
       - db
@@ -37,6 +39,8 @@ services:
       dockerfile: ./deployment/frontend/Dockerfile
     volumes:
       - ./frontend:/usr/src/map
+    depends_on:
+      - map-app
     environment:
      - WATCHPACK_POLLING=true
     command: sh -c "cd map && npm run dev"
